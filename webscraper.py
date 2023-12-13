@@ -1,14 +1,34 @@
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 import pandas as pd
+from selenium import webdriver
+import pathlib
 
 
-# Set up the initial connection
+
+### Set up the initial connection
 url = 'https://randomwalksbooth.org'
-req = Request(url)
-req.add_header('user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36')
-raw_html = urlopen(req).read()
-soup = BeautifulSoup(raw_html, features= 'html.parser')
+driver = webdriver.Firefox()
+driver.get(url)
+
+### Go through each location
+n_trips = 0
+locations = driver.find_elements('tag name', 'a')
+for location in locations:
+    link = location.get_attribute('href')
+    # exclude the email address + top-line links + family RW page
+    if 'private' not in link:
+        continue
+    n_trips += 1
+    driver.get(link)
+    driver.back()
+
+driver.quit()
+print(n_trips)
+
+# soup = BeautifulSoup(raw_html, features= 'html.parser')
+# print(soup)
+
 
 # Scrape the data
 
